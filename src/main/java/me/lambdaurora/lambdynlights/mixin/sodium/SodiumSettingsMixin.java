@@ -13,10 +13,9 @@ import me.lambdaurora.lambdynlights.DynamicLightsReforged;
 import me.lambdaurora.lambdynlights.config.DynamicLightsConfig;
 import me.lambdaurora.lambdynlights.config.QualityMode;
 import net.minecraft.client.gui.screen.Screen;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Pseudo;
-import org.spongepowered.asm.mixin.Shadow;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -30,10 +29,11 @@ import java.util.List;
 @Mixin(SodiumOptionsGUI.class)
 public abstract class SodiumSettingsMixin {
 
-    @Shadow
+    @Shadow(remap = false)
     @Final
     private List<OptionPage> pages;
 
+    @Unique
     private static final SodiumOptionsStorage dynamicLightsOpts = new SodiumOptionsStorage();
 
 
@@ -48,7 +48,11 @@ public abstract class SodiumSettingsMixin {
                         "\n\nLighting recalculation can be expensive, so slower values will give better performance." +
                         "\n\nOff - Self explanatory\nSlow - Twice a second\nFast - Five times a second\nRealtime - Every tick")
                 .setControl(
-                        (option) -> new CyclingControl<>(option, QualityMode.class, new String[] { "Off", "Slow", "Fast", "Realtime" }))
+                        (option) -> new CyclingControl<>(option, QualityMode.class, new ITextComponent[] {
+                                new StringTextComponent("Off"),
+                                new StringTextComponent("Slow"),
+                                new StringTextComponent("Fast"),
+                                new StringTextComponent("Realtime") }))
                 .setBinding(
                         (options, value) -> {
                             DynamicLightsConfig.Quality.set(value.toString());
